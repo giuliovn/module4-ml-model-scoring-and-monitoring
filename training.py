@@ -1,16 +1,14 @@
 import json
 from pathlib import Path
 
-import joblib
-import numpy as np
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import fbeta_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
+from common.common import evaluate_regression_model, process_data, save_file
 
-def train_model(input_file):
+
+def train_model(input_file: Path, categorical_features: list, Y_label: str):
     print(f"Read {input_file}")
     df = pd.read_csv(input_file)
 
@@ -36,50 +34,30 @@ def train_model(input_file):
 
     # fit the logistic regression to your data
     train, test = train_test_split(df, test_size=0.20)
-    categorical_features = ["corporation"]
+
     X_train, Y_train, encoder = process_data(
-        train, categorical_features=categorical_features, label="exited", training=True
+        train, categorical_features=categorical_features, label=Y_label, training=True
     )
     X_test, Y_test, _ = process_data(
         test,
         categorical_features=categorical_features,
-        label="exited",
+        label=Y_label,
         encoder=encoder,
         training=False,
     )
     lr.fit(X_train, Y_train)
 
     print("Evaluate")
-    y_pred = lr.predict(X_test)
-    precision = precision_score(Y_test, y_pred, zero_division=1)
-    recall = recall_score(Y_test, y_pred, zero_division=1)
-    fbeta = fbeta_score(Y_test, y_pred, beta=1, zero_division=1)
+    precision, recall, fbeta = evaluate_regression_model(lr, X_test, Y_test)
     print(f"Precision: {precision}. Recall: {recall}. Fbeta: {fbeta}")
 
     # write the trained model to your workspace in a file called trainedmodel.pkl
     model_pkl = output_folder_path / "trainedmodel.pkl"
     print(f"Save model to {model_pkl}")
-    joblib.dump(lr, model_pkl)
-
-
-def process_data(X, categorical_features=[], label=None, training=True, encoder=None):
-    if label is not None:
-        y = X[label]
-        X = X.drop([label], axis=1)
-    else:
-        y = np.array([])
-
-    X_categorical = X[categorical_features].values
-    X_continuous = X.drop(*[categorical_features], axis=1)
-
-    if training is True:
-        encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-        X_categorical = encoder.fit_transform(X_categorical)
-    else:
-        X_categorical = encoder.transform(X_categorical)
-
-    X = np.concatenate([X_continuous, X_categorical], axis=1)
-    return X, y, encoder
+    save_file(lr, model_pkl, format="pkl")
+    encoder_pkl = output_folder_path / "encoder.pkl"
+    print(f"Save encoder to {encoder_pkl}")
+    save_file(encoder, encoder_pkl, format="pkl")
 
 
 if __name__ == "__main__":
@@ -88,5 +66,7 @@ if __name__ == "__main__":
 
     output_folder_path = Path(config["output_folder_path"])
     input_file = output_folder_path / "finaldata.csv"
+    categorical_features = config["categorical_features"]
+    Y_label = config["Y_label"]
 
-    train_model(input_file)
+    train_model(input_file, categorical_features, Y_label)
