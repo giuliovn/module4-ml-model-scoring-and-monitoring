@@ -1,13 +1,11 @@
-from datetime import datetime
 import json
 from pathlib import Path
 
 import pandas as pd
 
 
-#############Function for data ingestion
 def merge_multiple_dataframe(input_folder_path: Path, output_folder_path: str):
-    #check for datasets, compile them together, and write to an output Path
+    # check for datasets, compile them together, and write to an output Path
     print(f"Find and concatenate csvs in {input_folder_path}")
     df = pd.DataFrame()
     ingest_files = []
@@ -28,8 +26,8 @@ def merge_multiple_dataframe(input_folder_path: Path, output_folder_path: str):
     with open(ingest_data_csv, "w") as f:
         f.write("\n".join(ingest_files))
 
+
 if __name__ == "__main__":
-    #############Load config.json and get input and output paths
     with open("config.json", "r") as f:
         config = json.load(f)
 
