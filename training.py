@@ -5,10 +5,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
-from common.common import evaluate_regression_model, process_data, save_file
+from common.files import save_file
+from common.data import process_data
+from common.model import evaluate_regression_model
 
 
-def train_model(input_file: Path, categorical_features: list, Y_label: str):
+def train_model(
+    input_file: Path, categorical_features: list, Y_label: str, output_model_path: Path
+):
     print(f"Read {input_file}")
     df = pd.read_csv(input_file)
 
@@ -52,10 +56,10 @@ def train_model(input_file: Path, categorical_features: list, Y_label: str):
     print(f"Precision: {precision}. Recall: {recall}. Fbeta: {fbeta}")
 
     # write the trained model to your workspace in a file called trainedmodel.pkl
-    model_pkl = output_folder_path / "trainedmodel.pkl"
+    model_pkl = output_model_path / "trainedmodel.pkl"
     print(f"Save model to {model_pkl}")
     save_file(lr, model_pkl, format="pkl")
-    encoder_pkl = output_folder_path / "encoder.pkl"
+    encoder_pkl = output_model_path / "encoder.pkl"
     print(f"Save encoder to {encoder_pkl}")
     save_file(encoder, encoder_pkl, format="pkl")
 
@@ -65,8 +69,9 @@ if __name__ == "__main__":
         config = json.load(f)
 
     output_folder_path = Path(config["output_folder_path"])
+    output_model_path = Path(config["output_model_path"])
     input_file = output_folder_path / "finaldata.csv"
     categorical_features = config["categorical_features"]
     Y_label = config["Y_label"]
 
-    train_model(input_file, categorical_features, Y_label)
+    train_model(input_file, categorical_features, Y_label, output_model_path)

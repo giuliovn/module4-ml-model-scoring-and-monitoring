@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from common.common import save_file
+from common.files import save_file
 
 
-def merge_multiple_dataframe(input_folder_path: Path, output_folder_path: str = None):
+def merge_multiple_dataframe(input_folder_path: Path, output_folder_path: Path = None):
     # check for datasets, compile them together, and write to an output Path
     print(f"Find and concatenate csvs in {input_folder_path}")
     df = pd.DataFrame()

@@ -3,7 +3,9 @@ from pathlib import Path
 
 import joblib
 
-from common.common import evaluate_regression_model, process_data, save_file
+from common.files import save_file
+from common.data import process_data
+from common.model import evaluate_regression_model
 from ingestion import merge_multiple_dataframe
 
 
@@ -38,7 +40,7 @@ if __name__ == "__main__":
     with open("config.json", "r") as f:
         config = json.load(f)
 
-    output_path = Path(config["output_folder_path"])
+    output_path = Path(config["output_model_path"])
     model_path = output_path / "trainedmodel.pkl"
     encoder_path = output_path / "encoder.pkl"
     test_data_dir = Path(config["test_data_path"])

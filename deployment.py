@@ -1,26 +1,27 @@
 import json
 from pathlib import Path
-from shutil import copyfile
+from shutil import copy2
 
 
-def store_model_into_pickle(results_dir: Path, deploy_dir: Path):
-    files_to_deploy = [
-        "latestscore.txt",
-        "ingestedfiles.txt",
-        "encoder.pkl",
-        "trainedmodel.pkl",
-    ]
+def store_model_into_pickle(files_to_deploy: list[Path], deploy_dir: Path):
     for file in files_to_deploy:
         print(f"Copy {file} to {deploy_dir}")
-        copyfile(results_dir / file, deploy_dir / file)
+        copy2(file, deploy_dir)
 
 
 if __name__ == "__main__":
     with open("config.json", "r") as f:
         config = json.load(f)
 
-    results_dir = Path(config["output_folder_path"])
+    output_folder_path = Path(config["output_folder_path"])
+    output_model_path = Path(config["output_model_path"])
     prod_deployment_dir = Path(config["prod_deployment_path"])
+    files_to_deploy = [
+        output_model_path / "latestscore.txt",
+        output_folder_path / "ingestedfiles.txt",
+        output_model_path / "encoder.pkl",
+        output_model_path / "trainedmodel.pkl",
+    ]
     prod_deployment_dir.mkdir(parents=True, exist_ok=True)
 
-    store_model_into_pickle(results_dir, prod_deployment_dir)
+    store_model_into_pickle(files_to_deploy, prod_deployment_dir)
