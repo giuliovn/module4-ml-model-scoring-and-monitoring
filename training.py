@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 
 from common.files import save_file
 from common.data import process_data
-from common.model import evaluate_regression_model
+from common.model import evaluate_regression_model, inference
 
 
 def train_model(
@@ -51,8 +51,9 @@ def train_model(
     )
     lr.fit(X_train, Y_train)
 
+    y_pred = inference(lr, X_test)
     print("Evaluate")
-    precision, recall, fbeta = evaluate_regression_model(lr, X_test, Y_test)
+    precision, recall, fbeta = evaluate_regression_model(Y_test, y_pred)
     print(f"Precision: {precision}. Recall: {recall}. Fbeta: {fbeta}")
 
     # write the trained model to your workspace in a file called trainedmodel.pkl

@@ -1,20 +1,33 @@
+import json
+from pathlib import Path
 import requests
 
-#Specify a URL that resolves to your workspace
-URL = "http://127.0.0.1/"
+from common.files import save_file
 
+with open("config.json", "r") as f:
+    config = json.load(f)
 
+output_path = Path(config["output_model_path"])
 
-#Call each API endpoint and store the responses
-response1 = #put an API call here
-response2 = #put an API call here
-response3 = #put an API call here
-response4 = #put an API call here
+# Specify a URL that resolves to your workspace
+URL = "http://127.0.0.1:8000/"
 
-#combine all API responses
-responses = #combine reponses here
+predict = requests.post(URL + "prediction?data=testdata/testdata.csv")
+score = requests.get(URL + "scoring")
+stats = requests.get(URL + "summarystats")
+diagnose = requests.get(URL + "diagnostics")
 
-#write the responses to your workspace
+# combine all API responses
+responses = json.dumps(
+    {
+        "prediction": predict.json(),
+        "score": score.json(),
+        "stats": stats.json(),
+        "diagnose": diagnose.json(),
+    },
+    sort_keys=True,
+    indent=4,
+)
 
-
-
+print(responses)
+save_file(responses, output_path / "apireturns.txt", format="txt")
