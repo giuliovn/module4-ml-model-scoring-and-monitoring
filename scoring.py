@@ -1,12 +1,9 @@
 import json
 from pathlib import Path
 
-import joblib
-
 from common.files import save_file
-from common.data import process_data
+from common.data import prepare_for_inference
 from common.model import evaluate_regression_model
-from ingestion import merge_multiple_dataframe
 
 
 def score_model(
@@ -16,20 +13,10 @@ def score_model(
     categorical_features: list,
     Y_label: str,
 ):
-    print(f"Read data in {test_data_dir}")
-    df = merge_multiple_dataframe(test_data_dir)
-    print(f"Load model {model_path}")
-    model = joblib.load(model_path)
-    print(f"Load encoder {encoder_path}")
-    encoder = joblib.load(encoder_path)
-    print("Process data")
-    X_test, Y_test, _ = process_data(
-        df,
-        categorical_features=categorical_features,
-        label=Y_label,
-        encoder=encoder,
-        training=False,
+    model, X_test, Y_test = prepare_for_inference(
+        test_data_dir, model_path, encoder_path, categorical_features, Y_label
     )
+
     print("Evaluate")
     precision, recall, fbeta = evaluate_regression_model(model, X_test, Y_test)
     print(f"Precision: {precision}. Recall: {recall}. Fbeta: {fbeta}")

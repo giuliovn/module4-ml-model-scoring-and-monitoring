@@ -1,46 +1,85 @@
 import json
 from pathlib import Path
+import subprocess
+import timeit
 
-import joblib
 import pandas as pd
 
 from ingestion import merge_multiple_dataframe
+from common.data import prepare_for_inference
 from common.model import inference
 
 
-def model_predictions(model_path: Path, data: pd.DataFrame):
-    print(f"Load model {model_path}")
-    model = joblib.load(model_path)
+def model_predictions(model: Path, data: pd.DataFrame):
     return inference(model, data)
 
 
-# ##################Function to get summary statistics
-# def dataframe_summary():
-#     #calculate summary statistics here
-#     return #return value should be a list containing all summary statistics
-#
-# ##################Function to get timings
-# def execution_time():
-#     #calculate timing of training.py and ingestion.py
-#     return #return a list of 2 timing values in seconds
-#
-# ##################Function to check dependencies
-# def outdated_packages_list():
-#     #get a list of
+def dataframe_summary(numerical_data: pd.DataFrame):
+    print("Calculate mean, median and standard deviation on numerical features")
+    mean = list(numerical_data.mean())
+    median = list(numerical_data.median())
+    std = list(numerical_data.std())
+    return mean, median, std
+
+
+def missing_data(data: pd.DataFrame):
+    print("Calculate percent of missing data")
+    nas = list(data.isna().sum())
+    napercents = [nas[i] / len(data.index) for i in range(len(nas))]
+    print(napercents)
+    return napercents
+
+
+def execution_time():
+    print("Calculate ingestion timing")
+    start_ingestion = timeit.default_timer()
+    subprocess.check_output(["python3", "ingestion.py"])
+    ingestion_timing = timeit.default_timer() - start_ingestion
+
+    print("Calculate train timing")
+    start_train = timeit.default_timer()
+    subprocess.check_output(["python3", "training.py"])
+    train_timing = timeit.default_timer() - start_train
+    timing = [ingestion_timing, train_timing]
+    print(timing)
+    return timing
+
+
+def outdated_packages_list():
+    print("Check dependencies")
+    stdout, _ = subprocess.Popen(
+        ["pip", "list", "--outdated"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ).communicate()
+    dep = stdout.decode("utf-8").strip("\n")
+    print(dep)
+    return dep
 
 
 if __name__ == "__main__":
     with open("config.json", "r") as f:
         config = json.load(f)
 
-    output_path = Path(config["output_folder_path"])
-    test_data_dir = Path(config["output_folder_path"])
-    # categorical_features = config["categorical_features"]
-    # Y_label = config["Y_label"]
-    print(f"Read data in {test_data_dir}")
-    df = merge_multiple_dataframe(test_data_dir)
+    output_folder_path = Path(config["output_folder_path"])
+    output_model_path = Path(config["output_model_path"])
+    categorical_features = config["categorical_features"]
+    Y_label = config["Y_label"]
+    print(f"Read data in {output_folder_path}")
+    df = merge_multiple_dataframe(output_folder_path)
 
-    model_predictions(output_path / "trainedmodel.pkl", df)
-    # dataframe_summary()
-    # execution_time()
-    # outdated_packages_list()
+    model, X_test, Y_test = prepare_for_inference(
+        output_folder_path,
+        output_model_path / "trainedmodel.pkl",
+        output_model_path / "encoder.pkl",
+        categorical_features,
+        Y_label,
+    )
+    model_predictions(model, X_test)
+
+    numerical_data = df.drop(*[categorical_features], axis=1)
+    dataframe_summary(numerical_data)
+
+    missing_data(df)
+
+    execution_time()
+
+    outdated_packages_list()
