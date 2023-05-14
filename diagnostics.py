@@ -7,11 +7,6 @@ import pandas as pd
 
 from ingestion import merge_multiple_dataframe
 from common.data import prepare_for_inference
-from common.model import inference
-
-
-def model_predictions(model: Path, data: pd.DataFrame):
-    return inference(model, data)
 
 
 def dataframe_summary(numerical_data: pd.DataFrame):
@@ -73,7 +68,6 @@ if __name__ == "__main__":
         categorical_features,
         Y_label,
     )
-    model_predictions(model, X_test)
 
     numerical_data = df.drop(*[categorical_features], axis=1)
     dataframe_summary(numerical_data)

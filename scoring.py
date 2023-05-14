@@ -3,7 +3,7 @@ from pathlib import Path
 
 from common.files import save_file
 from common.data import prepare_for_inference
-from common.model import evaluate_regression_model
+from common.model import evaluate_regression_model, inference
 
 
 def score_model(
@@ -16,9 +16,9 @@ def score_model(
     model, X_test, Y_test = prepare_for_inference(
         test_data_dir, model_path, encoder_path, categorical_features, Y_label
     )
-
+    y_pred = inference(model, X_test)
     print("Evaluate")
-    precision, recall, fbeta = evaluate_regression_model(model, X_test, Y_test)
+    precision, recall, fbeta = evaluate_regression_model(Y_test, y_pred)
     print(f"Precision: {precision}. Recall: {recall}. Fbeta: {fbeta}")
     return fbeta
 
