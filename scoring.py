@@ -12,6 +12,7 @@ def score_model(
     test_data_dir: Path,
     categorical_features: list,
     Y_label: str,
+    latest_score: Path = None,
 ):
     model, X_test, Y_test = prepare_for_inference(
         test_data_dir, model_path, encoder_path, categorical_features, Y_label
@@ -20,6 +21,9 @@ def score_model(
     print("Evaluate")
     precision, recall, fbeta = evaluate_regression_model(Y_test, y_pred)
     print(f"Precision: {precision}. Recall: {recall}. Fbeta: {fbeta}")
+    if latest_score:
+        print(f"Save F1 score to {latest_score}")
+        save_file(str(fbeta), latest_score, format="txt")
     return fbeta
 
 
@@ -33,10 +37,13 @@ if __name__ == "__main__":
     test_data_dir = Path(config["test_data_path"])
     categorical_features = config["categorical_features"]
     Y_label = config["Y_label"]
+    latest_score = output_path / "latestscore.txt"
 
     fbeta = score_model(
-        model_path, encoder_path, test_data_dir, categorical_features, Y_label
+        model_path,
+        encoder_path,
+        test_data_dir,
+        categorical_features,
+        Y_label,
+        latest_score,
     )
-    latest_score = output_path / "latestscore.txt"
-    print(f"Save F1 score to {latest_score}")
-    save_file(str(fbeta), latest_score, format="txt")

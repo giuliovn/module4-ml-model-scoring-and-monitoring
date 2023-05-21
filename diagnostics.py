@@ -9,6 +9,28 @@ from ingestion import merge_multiple_dataframe
 from common.data import prepare_for_inference
 
 
+def diagnostics(output_folder_path):
+    print(f"Read data in {output_folder_path}")
+    df = merge_multiple_dataframe(output_folder_path)
+
+    model, X_test, Y_test = prepare_for_inference(
+        output_folder_path,
+        output_model_path / "trainedmodel.pkl",
+        output_model_path / "encoder.pkl",
+        categorical_features,
+        Y_label,
+    )
+
+    numerical_data = df.drop(*[categorical_features], axis=1)
+    dataframe_summary(numerical_data)
+
+    missing_data(df)
+
+    execution_time()
+
+    outdated_packages_list()
+
+
 def dataframe_summary(numerical_data: pd.DataFrame):
     print("Calculate mean, median and standard deviation on numerical features")
     mean = list(numerical_data.mean())
@@ -58,22 +80,4 @@ if __name__ == "__main__":
     output_model_path = Path(config["output_model_path"])
     categorical_features = config["categorical_features"]
     Y_label = config["Y_label"]
-    print(f"Read data in {output_folder_path}")
-    df = merge_multiple_dataframe(output_folder_path)
-
-    model, X_test, Y_test = prepare_for_inference(
-        output_folder_path,
-        output_model_path / "trainedmodel.pkl",
-        output_model_path / "encoder.pkl",
-        categorical_features,
-        Y_label,
-    )
-
-    numerical_data = df.drop(*[categorical_features], axis=1)
-    dataframe_summary(numerical_data)
-
-    missing_data(df)
-
-    execution_time()
-
-    outdated_packages_list()
+    diagnostics(output_folder_path)

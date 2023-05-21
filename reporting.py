@@ -7,7 +7,7 @@ from common.data import prepare_for_inference
 from common.model import inference, make_confusion_matrix
 
 
-def score_model(
+def model_report(
     model_path: Path,
     encoder_path: Path,
     test_data_dir: Path,
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     categorical_features = config["categorical_features"]
     Y_label = config["Y_label"]
 
-    score_model(
+    model_report(
         model_path,
         encoder_path,
         test_data_dir,

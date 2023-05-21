@@ -8,20 +8,20 @@
             0.0
         ],
         [
-            0.6140924739884213,
-            0.6107208390021697
+            0.5424385140067898,
+            0.5854837490187492
         ],
-        "Package      Version Latest Type\n------------ ------- ------ -----\nnodeenv      1.7.0   1.8.0  wheel\npip          23.0.1  23.1.2 wheel\nplatformdirs 3.5.0   3.5.1  wheel\nscipy        1.9.3   1.10.1 wheel\nwheel        0.38.4  0.40.0 wheel"
+        "Package      Version Latest Type\n------------ ------- ------ -----\nnodeenv      1.7.0   1.8.0  wheel\npip          23.0.1  23.1.2 wheel\nplatformdirs 3.5.0   3.5.1  wheel\npre-commit   3.3.1   3.3.2  wheel\nscipy        1.9.3   1.10.1 wheel\nsetuptools   67.7.2  67.8.0 wheel\nwheel        0.38.4  0.40.0 wheel"
     ],
     "prediction": [
         1,
         1,
         1,
-        0,
+        1,
         1
     ],
     "score": [
-        0.8666666666666667
+        0.7000000000000001
     ],
     "stats": [
         [

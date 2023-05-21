@@ -3,7 +3,8 @@ from pathlib import Path
 from shutil import copy2
 
 
-def store_model_into_pickle(files_to_deploy: list[Path], deploy_dir: Path):
+def deploy(files_to_deploy: list[Path], deploy_dir: Path):
+    deploy_dir.mkdir(parents=True, exist_ok=True)
     for file in files_to_deploy:
         print(f"Copy {file} to {deploy_dir}")
         copy2(file, deploy_dir)
@@ -22,6 +23,4 @@ if __name__ == "__main__":
         output_model_path / "encoder.pkl",
         output_model_path / "trainedmodel.pkl",
     ]
-    prod_deployment_dir.mkdir(parents=True, exist_ok=True)
-
-    store_model_into_pickle(files_to_deploy, prod_deployment_dir)
+    deploy(files_to_deploy, prod_deployment_dir)
