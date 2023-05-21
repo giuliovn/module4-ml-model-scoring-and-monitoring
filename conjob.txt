@@ -1,0 +1,1 @@
+*/10 * * * * python /path/to/fullprocess.py
